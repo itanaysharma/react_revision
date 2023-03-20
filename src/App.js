@@ -1,6 +1,6 @@
 import "./App.css";
 import React from "react";
-// Below is the custome State
+
 const useSemiPersistentState = (key, initialSate) => {
   const [value, setValue] = React.useState(
     localStorage.getItem(key) || initialSate
@@ -11,9 +11,7 @@ const useSemiPersistentState = (key, initialSate) => {
 
   return [value, setValue];
 };
-// Why we need to pass key in useEffect?
-//Since the key comes from outside, the custom hook assumes that it could change, so it needs to be included in the dependency array of the
-//useEffect hook. Without it, the side-effect may run with an outdated key (also called stale) if the key changed between renders.
+
 const App = () => {
   const stories = [
     {
@@ -57,7 +55,7 @@ const App = () => {
 };
 
 const Search = (props) => (
-  <div>
+  <>
     <label htmlFor="search">Search: </label>
     <input
       id="search"
@@ -65,7 +63,7 @@ const Search = (props) => (
       value={props.search}
       onChange={props.onSearch}
     />
-  </div>
+  </>
 );
 const List = ({ list }) =>
   list.map((item) => <Item key={item.objectID} item={item} />);
