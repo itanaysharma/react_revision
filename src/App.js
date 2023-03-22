@@ -30,10 +30,21 @@ const initialStories = [
     objectID: 1,
   },
 ];
+const getAsynStories = () =>
+  new Promise((resolve) =>
+    setTimeout(() => resolve({ data: { stories: initialStories } }), 2000)
+  );
+
 const App = () => {
   const [searchTerm, setSearchTerm] = useSemiPersistentState("search", "React");
-  const [stories, setStories] = React.useState(initialStories);
+  const [stories, setStories] = React.useState([]);
 
+  React.useEffect(() => {
+    getAsynStories().then((result) => {
+      setStories(result.data.stories);
+    });
+  }, []);
+  // We are doing this to create a simulation for API callings as API call are Asyncronous and can come anytime
   const handleSearch = (event) => {
     setSearchTerm(event.target.value);
   };
