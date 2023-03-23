@@ -30,6 +30,18 @@ const initialStories = [
     objectID: 1,
   },
 ];
+const storiesReducer = (state, action) => {
+  switch (action.type) {
+    case "SET_STORIES":
+      return action.payload;
+    case "REMOVE_STORY":
+      return state.filter(
+        (story) => action.payload.objectID !== story.objectID
+      );
+    default:
+      throw new Error("Error because nothing matched");
+  }
+};
 const getAsyncStories = () =>
   new Promise((resolve) =>
     setTimeout(() => resolve({ data: { stories: initialStories } }), 2000)
@@ -37,7 +49,7 @@ const getAsyncStories = () =>
 
 const App = () => {
   const [searchTerm, setSearchTerm] = useSemiPersistentState("search", "React");
-  const [stories, setStories] = React.useState([]);
+  const [stories, despatchStories] = React.useReducer(storiesReducer, []);
   const [isLoading, setIsLoading] = React.useState(false);
   const [isError, setIsError] = React.useState(false);
 
@@ -46,20 +58,22 @@ const App = () => {
 
     getAsyncStories()
       .then((result) => {
-        setStories(result.data.stories);
+        despatchStories({
+          type: "SET_STORIES",
+          payload: result.data.stories,
+        });
         setIsLoading(false);
       })
       .catch(() => setIsError(true));
   }, []);
-  // We are doing this to create a simulation for API callings as API call are Asyncronous and can come anytime
   const handleSearch = (event) => {
     setSearchTerm(event.target.value);
   };
   const handleRemoveStory = (item) => {
-    const newStories = stories.filter(
-      (story) => item.objectID !== story.objectID
-    );
-    setStories(newStories);
+    despatchStories({
+      type: "REMOVE_STORY",
+      payload: item,
+    });
   };
 
   const searchedStories = stories.filter((story) =>
