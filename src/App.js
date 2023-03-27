@@ -1,6 +1,6 @@
 import "./App.css";
 import React from "react";
-
+const API_ENDPOINT = "https://hn.algolia.com/api/v1/search?query=";
 const useSemiPersistentState = (key, initialSate) => {
   const [value, setValue] = React.useState(
     localStorage.getItem(key) || initialSate
@@ -64,10 +64,6 @@ const storiesReducer = (state, action) => {
       throw new Error("Error because nothing");
   }
 };
-const getAsyncStories = () =>
-  new Promise((resolve) =>
-    setTimeout(() => resolve({ data: { stories: initialStories } }), 2000)
-  );
 
 const App = () => {
   const [searchTerm, setSearchTerm] = useSemiPersistentState("search", "React");
@@ -80,11 +76,12 @@ const App = () => {
   React.useEffect(() => {
     dispatchStories({ type: "STORIES_FETCH_INIT" });
 
-    getAsyncStories()
+    fetch(`${API_ENDPOINT}react`)
+      .then((response) => response.json())
       .then((result) => {
         dispatchStories({
           type: "STORIES_FETCH_SUCCESS",
-          payload: result.data.stories,
+          payload: result.hits,
         });
       })
       .catch(() => dispatchStories({ type: "STORIES_FETCH_FAILURE" }));
