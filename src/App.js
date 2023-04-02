@@ -55,7 +55,7 @@ const App = () => {
     isError: false,
   });
 
-  React.useEffect(() => {
+  const handleFetchStories = React.useCallback(() => {
     if (!searchTerm) return;
 
     dispatchStories({ type: "STORIES_FETCH_INIT" });
@@ -63,6 +63,7 @@ const App = () => {
     fetch(`${API_ENDPOINT}${searchTerm}`)
       .then((response) => response.json())
       .then((result) => {
+        console.log(result);
         dispatchStories({
           type: "STORIES_FETCH_SUCCESS",
           payload: result.hits,
@@ -71,6 +72,9 @@ const App = () => {
       .catch(() => dispatchStories({ type: "STORIES_FETCH_FAILURE" }));
   }, [searchTerm]);
   // We are doing this to create a simulation for API callings as API call are Asyncronous and can come anytime
+  React.useEffect(() => {
+    handleFetchStories();
+  }, [handleFetchStories]);
   const handleSearch = (event) => {
     setSearchTerm(event.target.value);
   };
