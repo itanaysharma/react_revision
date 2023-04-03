@@ -49,6 +49,7 @@ const storiesReducer = (state, action) => {
 
 const App = () => {
   const [searchTerm, setSearchTerm] = useSemiPersistentState("search", "React");
+  const [url, setUrl] = React.useState(`${API_ENDPOINT}${searchTerm}`);
   const [stories, dispatchStories] = React.useReducer(storiesReducer, {
     data: [],
     isLoading: false,
@@ -56,11 +57,9 @@ const App = () => {
   });
 
   const handleFetchStories = React.useCallback(() => {
-    if (!searchTerm) return;
-
     dispatchStories({ type: "STORIES_FETCH_INIT" });
 
-    fetch(`${API_ENDPOINT}${searchTerm}`)
+    fetch(url)
       .then((response) => response.json())
       .then((result) => {
         console.log(result);
@@ -70,12 +69,13 @@ const App = () => {
         });
       })
       .catch(() => dispatchStories({ type: "STORIES_FETCH_FAILURE" }));
-  }, [searchTerm]);
+  }, [url]);
   // We are doing this to create a simulation for API callings as API call are Asyncronous and can come anytime
   React.useEffect(() => {
     handleFetchStories();
   }, [handleFetchStories]);
-  const handleSearch = (event) => {
+
+  const handleSearchInput = (event) => {
     setSearchTerm(event.target.value);
   };
   const handleRemoveStory = (item) => {
@@ -84,7 +84,9 @@ const App = () => {
       payload: item,
     });
   };
-
+  const handleSearchSubmit = () => {
+    setUrl(`${API_ENDPOINT}${searchTerm}`);
+  };
   return (
     <div>
       <h1>My Hacker Stories</h1>
@@ -92,12 +94,14 @@ const App = () => {
       <InputWithLabel
         id="search"
         value={searchTerm}
-        onInputChange={handleSearch}
+        onInputChange={handleSearchInput}
         isFocused
       >
         <strong>Search:</strong>
       </InputWithLabel>
-
+      <button type="button" disabled={!searchTerm} onClick={handleSearchSubmit}>
+        Submit
+      </button>
       <hr />
 
       {stories.isError && <p>Something went wrong ...</p>}
